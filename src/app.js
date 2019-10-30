@@ -6,12 +6,18 @@ import {noise} from 'perlin'
 
 
 var light = new THREE.DirectionalLight( 0xffffff )
-light.position.set( 0, -25, 10 )
+light.position.set( 40, 250, 10 )
 light.castShadow = true
 scene.add(light)
+
+
+var light2 = new THREE.DirectionalLight( 0xffffff )
+light.position.set( 40, -250, 10 )
+light.castShadow = true
+scene.add(light2)
 //
 var spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 200, 10000, 100 );
+spotLight.position.set( 400, 100, 100 );
 
 spotLight.castShadow = true;
 
@@ -35,15 +41,25 @@ var material2 = new THREE.MeshPhongMaterial( { ambient: 0xf00fff, color: 0x000FF
 
 var material3 = new THREE.MeshPhongMaterial( { ambient: 0xf00fff, color: 0xf22fff, specular: 0x000FF0 , shininess: 100, side: THREE.DoubleSide } )
 
+var material4 = new THREE.MeshPhongMaterial( { ambient: 0xf00fff, color: 0x4AF262, specular: 0xffffff , shininess: 100, side: THREE.DoubleSide } )
+
 var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 0.1, 1000 )
-camera.position.z = 8
+camera.position.z = 5
 
 
-var geometry = new THREE.PlaneGeometry( 500, 200, 820 );
 
-var geometry2 = new THREE.PlaneGeometry( 200, 500, 820 );
 
-var geometry3 = new THREE.PlaneGeometry( 200, 500, 820 );
+
+
+
+
+var geometry = new THREE.PlaneGeometry( 500, 200, 200,200 );
+
+var geometry2 = new THREE.PlaneGeometry( 200, 500, 200,200 );
+
+var geometry4 = new THREE.PlaneGeometry( 400, 500, 200,200 );
+
+var geometry3 =  new THREE.SphereGeometry(0.1, 128, 128);
 
 var material = new THREE.MeshNormalMaterial()
 
@@ -51,29 +67,57 @@ var sphere = new THREE.Mesh(geometry, material2);
 
 var sphere2 = new THREE.Mesh(geometry2, material3);
 
-var sphere3 = new THREE.Mesh(geometry3, material2);
+var sphere3 = new THREE.Mesh(geometry4, material4);
 
-scene.add(sphere, sphere2, sphere3);
+scene.add(sphere, sphere2, sphere3)
 
 
 var update = function() {
 
   // change '0.003' for more aggressive animation
-  var time = performance.now() * 0.002
+  var time = performance.now() * 0.0005
   //console.log(time)
 
   //go through vertices here and reposition them
 
   // change 'k' value for more spikes
-  var k = 500;
+  var k = 3;
+  var sp = 4;
   for (var i = 0; i < sphere.geometry.vertices.length; i++) {
     var p = sphere.geometry.vertices[i];
-    p.normalize().multiplyScalar(1 + 2.6 * noise.perlin3(p.x * k + time, p.y * k, p.z * k));
+    p.normalize().multiplyScalar(1 + 1.6 * noise.perlin3(p.x * k + time, p.y * k, p.z * k));
   }
-  for (var i = 0; i < sphere2.geometry.vertices.length; i++) {
-    var o = sphere2.geometry.vertices[i];
-    o.normalize().multiplyScalar(1 + 2.6 * noise.perlin3(o.x * k + time, o.y * k, o.z * k));
+  for (var j = 0; j < sphere2.geometry.vertices.length; j++) {
+    var o = sphere2.geometry.vertices[j];
+    o.normalize().multiplyScalar(1 + 1.6 * noise.perlin3(o.x * k + time, o.y * k, o.z * k));
   }
+
+  for (var l = 0; l < sphere3.geometry.vertices.length; l++) {
+    var n = sphere3.geometry.vertices[l];
+    n.normalize().multiplyScalar(1.2 + 0.6 * noise.perlin3(n.x * sp + time, n.y * sp, n.z * sp))
+  }
+
+
+  var points = [];
+  for ( var d = 0; d < 10; d ++ ) {
+  	points.push( new THREE.Vector2( Math.sin( d * 0.2 ) * 10 + 5, ( d - 5 ) * 2 ) );
+  }
+  var geometry5 = new THREE.LatheGeometry( points );
+  var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+  var lathe = new THREE.Mesh( geometry5, material3 );
+  scene.add( lathe );
+
+
+  var sp = 9;
+  for (var qw = 0; qw < lathe.geometry.vertices.length; qw++) {
+    var po = lathe.geometry.vertices[qw];
+    po.normalize().multiplyScalar(1 + 0.6 * noise.perlin3(po.x * sp + time, po.y * sp, po.z * sp));
+  }
+
+
+
+  console.log(lathe)
+
 
 
 sphere.geometry.computeVertexNormals()
@@ -85,14 +129,24 @@ sphere2.geometry.computeVertexNormals()
 sphere2.geometry.normalsNeedUpdate = true
 sphere2.geometry.verticesNeedUpdate = true
 
+sphere3.geometry.computeVertexNormals()
+sphere3.geometry.normalsNeedUpdate = true
+sphere3.geometry.verticesNeedUpdate = true
+
+lathe.geometry.computeVertexNormals()
+lathe.geometry.normalsNeedUpdate = true
+lathe.geometry.verticesNeedUpdate = true
 
 }
 
 function animate() {
-   sphere.rotation.x += 0.01;
-   sphere2.rotation.x -= 0.02;
-   // sphere.rotation.y += 0.01;
-   // sphere.rotation.z += 0.01;
+   // sphere.rotation.x += 0.01;
+   // sphere2.rotation.x -= 0.02;
+   // sphere3.rotation.z += 0.01;
+   // sphere3.rotation.x -= 0.01;
+
+      //scene.rotation.y -= 0.01;
+
 
   update();
   /* render scene and camera */
